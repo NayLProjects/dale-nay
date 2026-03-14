@@ -22,24 +22,25 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);heig
 .screen{display:none;flex:1;flex-direction:column;overflow:hidden;animation:fadeUp .3s ease;}
 .screen.active{display:flex;}
 @keyframes fadeUp{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
-.scroll-content{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;padding-bottom:96px;}
+.scroll-content{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;padding-bottom:80px;}
 .scroll-content::-webkit-scrollbar{display:none;}
 
-/* NAV - 5 items */
-.nav{display:flex;background:var(--surface);border-top:1.5px solid var(--border);padding:6px 0 max(6px,env(safe-area-inset-bottom));position:relative;z-index:100;box-shadow:0 -4px 20px rgba(232,83,138,0.08);flex-shrink:0;}
-.nav-btn{flex:1;background:none;border:none;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;padding:4px 2px;color:var(--text3);font-family:'Nunito',sans-serif;font-size:9px;font-weight:700;letter-spacing:0.2px;transition:color .2s;}
-.nav-btn .ni{font-size:20px;transition:transform .2s;}
+.nav{display:flex;background:var(--surface);border-top:1.5px solid var(--border);padding:0;padding-bottom:max(4px,env(safe-area-inset-bottom));position:relative;z-index:100;box-shadow:0 -4px 20px rgba(232,83,138,0.08);flex-shrink:0;overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch;scrollbar-width:none;}
+.nav::-webkit-scrollbar{display:none;}
+.nav-btn{flex:0 0 auto;min-width:58px;background:none;border:none;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 4px 4px;color:var(--text3);font-family:'Nunito',sans-serif;font-size:9px;font-weight:700;letter-spacing:0.2px;transition:color .2s;white-space:nowrap;position:relative;}
+.nav-btn .ni{font-size:21px;transition:transform .2s;line-height:1;}
 .nav-btn.active{color:var(--pink);}
-.nav-btn.active .ni{transform:scale(1.15);}
-.nav-dot{width:4px;height:4px;border-radius:50%;background:var(--pink);margin:0 auto;opacity:0;transition:opacity .2s;}
+.nav-btn.active .ni{transform:scale(1.1);}
+.nav-dot{width:4px;height:4px;border-radius:50%;background:var(--pink);margin:2px auto 0;opacity:0;transition:opacity .2s;}
 .nav-btn.active .nav-dot{opacity:1;}
+.nav-btn.active::before{content:'';display:block;position:absolute;top:0;width:28px;height:2.5px;border-radius:0 0 3px 3px;background:var(--pink);}
 
 /* HEADERS */
-.header-pill{background:linear-gradient(135deg,#E8538A,#FF85A1,#FFB6C8);border-radius:0 0 36px 36px;padding:52px 24px 28px;position:relative;overflow:hidden;flex-shrink:0;}
+.header-pill{background:linear-gradient(135deg,#E8538A,#FF85A1,#FFB6C8);border-radius:0 0 28px 28px;padding:36px 20px 22px;position:relative;overflow:hidden;flex-shrink:0;}
 .header-pill::before{content:'';position:absolute;top:-50px;right:-50px;width:180px;height:180px;border-radius:50%;background:rgba(255,255,255,0.13);}
 .header-pill::after{content:'';position:absolute;bottom:-35px;left:-25px;width:120px;height:120px;border-radius:50%;background:rgba(255,255,255,0.08);}
 .header-title{font-size:12px;color:rgba(255,255,255,0.85);font-weight:800;letter-spacing:0.8px;margin-bottom:3px;text-transform:uppercase;}
-.header-name{font-family:'DM Serif Display',serif;font-size:26px;color:#fff;font-style:italic;line-height:1.25;position:relative;z-index:1;}
+.header-name{font-family:'DM Serif Display',serif;font-size:22px;color:#fff;font-style:italic;line-height:1.25;position:relative;z-index:1;}
 .heart-anim{display:inline-block;animation:hb 1.6s ease-in-out infinite;margin-left:4px;}
 @keyframes hb{0%,100%{transform:scale(1);}50%{transform:scale(1.2);}}
 
@@ -48,7 +49,7 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);heig
 .balance-card{background:var(--surface);border-radius:var(--radius);box-shadow:var(--shadow);padding:20px;border:1.5px solid var(--border);}
 .bal-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:16px;}
 .bal-label{font-size:11px;color:var(--text3);font-weight:800;text-transform:uppercase;letter-spacing:1px;}
-.bal-amount{font-size:34px;font-weight:900;color:var(--text);margin-top:2px;line-height:1;}
+.bal-amount{font-size:28px;font-weight:900;color:var(--text);margin-top:2px;line-height:1;}
 .bal-mini-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
 .bal-mini{background:var(--surface3);border-radius:var(--radius-sm);padding:12px;display:flex;align-items:center;gap:10px;}
 .bal-mini-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
@@ -76,7 +77,7 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);heig
 .transcript-bubble{background:var(--surface);border:1.5px solid var(--border2);border-radius:var(--radius);padding:14px 18px;width:100%;max-width:320px;margin-top:14px;font-size:15px;font-weight:700;color:var(--text);text-align:center;display:none;box-shadow:var(--shadow-sm);}
 
 /* SCREEN 2 HEADER */
-.cat-header{background:linear-gradient(135deg,#FF85A1,#FFB6C8,#E8538A);border-radius:0 0 32px 32px;padding:52px 24px 22px;flex-shrink:0;}
+.cat-header{background:linear-gradient(135deg,#FF85A1,#FFB6C8,#E8538A);border-radius:0 0 28px 28px;padding:36px 20px 18px;flex-shrink:0;}
 .cat-header-title{font-family:'DM Serif Display',serif;font-size:24px;color:#fff;font-style:italic;}
 .cat-header-sub{font-size:12px;color:rgba(255,255,255,0.85);font-weight:700;margin-top:4px;}
 
@@ -123,7 +124,7 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);heig
 .export-fab:active{transform:scale(.93);}
 
 /* CHARTS */
-.charts-header{background:linear-gradient(135deg,#FFB6C8,#FF85A1,#E8538A);border-radius:0 0 32px 32px;padding:52px 24px 22px;flex-shrink:0;}
+.charts-header{background:linear-gradient(135deg,#FFB6C8,#FF85A1,#E8538A);border-radius:0 0 28px 28px;padding:36px 20px 18px;flex-shrink:0;}
 .charts-header-title{font-family:'DM Serif Display',serif;font-size:24px;color:#fff;font-style:italic;}
 .period-tabs{display:flex;margin:14px 20px 0;background:var(--surface3);border-radius:var(--radius-sm);padding:4px;gap:4px;flex-shrink:0;}
 .period-tab{flex:1;padding:9px 6px;border-radius:10px;background:none;border:none;color:var(--text3);font-family:'Nunito',sans-serif;font-size:12px;font-weight:800;cursor:pointer;transition:all .2s;text-align:center;}
@@ -138,7 +139,7 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);heig
 .chart-card{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius);padding:16px;box-shadow:var(--shadow-sm);}
 
 /* ===== SCREEN 4: INGRESOS ===== */
-.income-header{background:linear-gradient(135deg,#A8E6CF,#56CCF2,#74B9FF);border-radius:0 0 32px 32px;padding:52px 24px 22px;flex-shrink:0;}
+.income-header{background:linear-gradient(135deg,#A8E6CF,#56CCF2,#74B9FF);border-radius:0 0 28px 28px;padding:36px 20px 18px;flex-shrink:0;}
 .income-header-title{font-family:'DM Serif Display',serif;font-size:24px;color:#fff;font-style:italic;}
 .income-header-sub{font-size:12px;color:rgba(255,255,255,0.9);font-weight:700;margin-top:4px;}
 
@@ -168,7 +169,7 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);heig
 .add-invest-btn:active{background:var(--pink-pale);}
 
 /* ===== SCREEN 5: EMAIL / SINSAJO ===== */
-.share-header{background:linear-gradient(135deg,#FDDB92,#F6A5C0,#E8538A);border-radius:0 0 32px 32px;padding:52px 24px 22px;flex-shrink:0;}
+.share-header{background:linear-gradient(135deg,#FDDB92,#F6A5C0,#E8538A);border-radius:0 0 28px 28px;padding:36px 20px 18px;flex-shrink:0;}
 .share-header-title{font-family:'DM Serif Display',serif;font-size:24px;color:#fff;font-style:italic;}
 .share-header-sub{font-size:12px;color:rgba(255,255,255,0.9);font-weight:700;margin-top:4px;}
 
@@ -195,6 +196,15 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);heig
 .emotion-amt-pill{background:var(--surface3);border-radius:var(--radius-sm);padding:10px 6px;text-align:center;}
 .emotion-amt-cur{font-size:10px;font-weight:800;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;}
 .emotion-amt-val{font-size:13px;font-weight:900;color:var(--text);margin-top:2px;}
+
+/* PIN LOCK */
+.pin-dot{width:16px;height:16px;border-radius:50%;background:#F0D0DC;border:2px solid #E8538A44;transition:all .2s;}
+.pin-dot.filled{background:var(--pink);border-color:var(--pink);transform:scale(1.15);}
+.pin-dot.shake{animation:pinShake .4s ease;}
+@keyframes pinShake{0%,100%{transform:translateX(0);}20%{transform:translateX(-6px);}40%{transform:translateX(6px);}60%{transform:translateX(-4px);}80%{transform:translateX(4px);}}
+.pin-btn{width:72px;height:72px;border-radius:50%;background:#fff;border:1.5px solid rgba(232,83,138,0.2);font-family:'Nunito',sans-serif;font-size:22px;font-weight:800;color:#3D1A26;cursor:pointer;transition:all .15s;box-shadow:0 2px 10px rgba(232,83,138,0.1);}
+.pin-btn:active{background:var(--pink-pale);transform:scale(.92);border-color:var(--pink);}
+.pin-del{font-size:18px;color:var(--pink);}
 
 /* MODALS */
 .modal-overlay{display:none;position:fixed;inset:0;background:rgba(61,26,38,0.48);backdrop-filter:blur(4px);z-index:200;align-items:flex-end;justify-content:center;}
@@ -237,6 +247,45 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);heig
 </head>
 <body>
 
+<!-- ====== LOCK SCREEN ====== -->
+<div id="lockScreen" style="position:fixed;inset:0;z-index:999;background:linear-gradient(160deg,#FFE0EE,#FFF0F5,#FADADD);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 24px;">
+  <div style="font-size:56px;margin-bottom:8px;animation:hb 1.6s ease-in-out infinite;">🩷</div>
+  <div style="font-family:'DM Serif Display',serif;font-size:28px;color:#3D1A26;font-style:italic;margin-bottom:4px;">Dale Nay</div>
+  <div style="font-size:13px;color:#B07090;font-weight:700;margin-bottom:36px;">Ingresá tu clave de 6 dígitos</div>
+
+  <!-- PIN DOTS -->
+  <div style="display:flex;gap:14px;margin-bottom:32px;" id="pinDots">
+    <div class="pin-dot" id="dot0"></div>
+    <div class="pin-dot" id="dot1"></div>
+    <div class="pin-dot" id="dot2"></div>
+    <div class="pin-dot" id="dot3"></div>
+    <div class="pin-dot" id="dot4"></div>
+    <div class="pin-dot" id="dot5"></div>
+  </div>
+
+  <!-- PIN ERROR -->
+  <div id="pinError" style="font-size:13px;color:#E8538A;font-weight:800;margin-bottom:16px;min-height:20px;text-align:center;"></div>
+
+  <!-- NUMPAD -->
+  <div style="display:grid;grid-template-columns:repeat(3,72px);gap:12px;">
+    <button class="pin-btn" onclick="pinPress('1')">1</button>
+    <button class="pin-btn" onclick="pinPress('2')">2</button>
+    <button class="pin-btn" onclick="pinPress('3')">3</button>
+    <button class="pin-btn" onclick="pinPress('4')">4</button>
+    <button class="pin-btn" onclick="pinPress('5')">5</button>
+    <button class="pin-btn" onclick="pinPress('6')">6</button>
+    <button class="pin-btn" onclick="pinPress('7')">7</button>
+    <button class="pin-btn" onclick="pinPress('8')">8</button>
+    <button class="pin-btn" onclick="pinPress('9')">9</button>
+    <div></div>
+    <button class="pin-btn" onclick="pinPress('0')">0</button>
+    <button class="pin-btn pin-del" onclick="pinDelete()">⌫</button>
+  </div>
+
+  <!-- FIRST TIME setup hint -->
+  <div id="pinSetupHint" style="margin-top:20px;font-size:12px;color:#B07090;font-weight:700;text-align:center;line-height:1.6;"></div>
+</div>
+
 <!-- ====== SCREEN 1: HOME / MIC ====== -->
 <div class="screen active" id="screen1">
   <div class="header-pill">
@@ -247,25 +296,25 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);heig
     <div class="balance-wrap">
       <div class="balance-card">
         <div class="bal-top">
-          <div>
+          <div style="flex:1;">
             <div class="bal-label">Balance del mes</div>
-            <div class="bal-amount" id="balanceDisplay">$ 0</div>
+            <div class="bal-amount income-amount-hidden" id="balanceDisplay">$ 0</div>
           </div>
-          <span style="font-size:34px;">💰</span>
+          <button class="heart-toggle" id="balanceToggle" onclick="toggleBalance()" title="Mostrar/ocultar balance">🩷</button>
         </div>
         <div class="bal-mini-row">
           <div class="bal-mini">
             <div class="bal-mini-dot" style="background:#27AE60;"></div>
             <div>
               <div class="bal-mini-label">Ingresos</div>
-              <div class="bal-mini-val income-val" id="incomeDisplay">$ 0</div>
+              <div class="bal-mini-val income-val income-amount-hidden" id="incomeDisplay">$ 0</div>
             </div>
           </div>
           <div class="bal-mini">
             <div class="bal-mini-dot" style="background:var(--pink);"></div>
             <div>
               <div class="bal-mini-label">Gastos</div>
-              <div class="bal-mini-val expense-val" id="expenseDisplay">$ 0</div>
+              <div class="bal-mini-val expense-val income-amount-hidden" id="expenseDisplay">$ 0</div>
             </div>
           </div>
         </div>
@@ -481,7 +530,7 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);heig
 
 <!-- ====== SCREEN 6: ANÁLISIS POR PERSONA ====== -->
 <div class="screen" id="screen6">
-  <div style="background:linear-gradient(135deg,#FADADD,#FFB6C8,#E8538A);border-radius:0 0 32px 32px;padding:52px 24px 22px;flex-shrink:0;">
+  <div style="background:linear-gradient(135deg,#FADADD,#FFB6C8,#E8538A);border-radius:0 0 28px 28px;padding:36px 20px 18px;flex-shrink:0;">
     <div style="font-family:'DM Serif Display',serif;font-size:24px;color:#fff;font-style:italic;">Mi familia & amor 🩷</div>
     <div style="font-size:12px;color:rgba(255,255,255,0.9);font-weight:700;margin-top:4px;">Cuánto gasté en cada uno</div>
   </div>
@@ -713,6 +762,8 @@ function showScreen(n) {
   const nb = document.getElementById('nav'+n);
   nb.classList.add('active');
   nb.querySelector('.nav-dot').style.display='block';
+  // Scroll nav so active button is visible
+  nb.scrollIntoView({behavior:'smooth',block:'nearest',inline:'center'});
   const fab = document.getElementById('exportFab');
   fab.style.display = n===2 ? 'flex' : 'none';
   if (n===2) renderTx();
@@ -1351,6 +1402,105 @@ function closePersonDetail(){
   document.getElementById('personCards').style.display='flex';
 }
 
+// =========== PIN LOCK ===========
+const DEFAULT_PIN = '123456';
+let pinEntry = '';
+let pinMode = 'check'; // 'check' | 'setup_new' | 'setup_confirm'
+let pinTemp = '';
+let balanceVisible = false;
+
+function initLock() {
+  const stored = localStorage.getItem('nay_pin');
+  if (!stored) {
+    // First time — ask to set a pin
+    pinMode = 'setup_new';
+    document.getElementById('pinSetupHint').textContent = 'Primera vez: creá tu clave de 6 dígitos';
+    document.querySelector('[id="lockScreen"] div:nth-child(3)').textContent = 'Creá tu clave de 6 dígitos';
+  } else {
+    pinMode = 'check';
+    document.getElementById('pinSetupHint').textContent = '';
+  }
+  updateDots();
+  document.getElementById('lockScreen').style.display = 'flex';
+}
+
+function pinPress(digit) {
+  if (pinEntry.length >= 6) return;
+  pinEntry += digit;
+  updateDots();
+  if (pinEntry.length === 6) {
+    setTimeout(() => handlePinComplete(), 120);
+  }
+}
+
+function pinDelete() {
+  pinEntry = pinEntry.slice(0, -1);
+  updateDots();
+  document.getElementById('pinError').textContent = '';
+}
+
+function updateDots() {
+  for (let i = 0; i < 6; i++) {
+    const dot = document.getElementById('dot' + i);
+    dot.classList.toggle('filled', i < pinEntry.length);
+  }
+}
+
+function handlePinComplete() {
+  if (pinMode === 'check') {
+    const stored = localStorage.getItem('nay_pin') || DEFAULT_PIN;
+    if (pinEntry === stored) {
+      unlockApp();
+    } else {
+      shakeDots();
+      document.getElementById('pinError').textContent = 'Clave incorrecta, intentá de nuevo 🩷';
+      pinEntry = '';
+      updateDots();
+    }
+  } else if (pinMode === 'setup_new') {
+    pinTemp = pinEntry;
+    pinMode = 'setup_confirm';
+    pinEntry = '';
+    updateDots();
+    document.getElementById('pinSetupHint').textContent = 'Repetí tu clave para confirmar';
+    document.getElementById('pinError').textContent = '';
+  } else if (pinMode === 'setup_confirm') {
+    if (pinEntry === pinTemp) {
+      localStorage.setItem('nay_pin', pinEntry);
+      unlockApp();
+    } else {
+      shakeDots();
+      document.getElementById('pinError').textContent = 'Las claves no coinciden, empezá de nuevo';
+      pinEntry = ''; pinTemp = ''; pinMode = 'setup_new';
+      updateDots();
+      document.getElementById('pinSetupHint').textContent = 'Creá tu clave de 6 dígitos';
+    }
+  }
+}
+
+function shakeDots() {
+  document.querySelectorAll('.pin-dot').forEach(d => {
+    d.classList.add('shake');
+    setTimeout(() => d.classList.remove('shake'), 400);
+  });
+}
+
+function unlockApp() {
+  const lock = document.getElementById('lockScreen');
+  lock.style.transition = 'opacity .35s ease';
+  lock.style.opacity = '0';
+  setTimeout(() => { lock.style.display = 'none'; }, 350);
+}
+
+// =========== BALANCE VISIBILITY ===========
+function toggleBalance() {
+  balanceVisible = !balanceVisible;
+  ['balanceDisplay','incomeDisplay','expenseDisplay'].forEach(id => {
+    document.getElementById(id).classList.toggle('visible', balanceVisible);
+  });
+  document.getElementById('balanceToggle').textContent = balanceVisible ? '🤍' : '🩷';
+}
+
 // =========== TOAST ===========
 function showToast(msg){
   const t=document.getElementById('toast');
@@ -1361,6 +1511,7 @@ function showToast(msg){
 // =========== INIT ===========
 updateBalance();
 document.getElementById('exportFab').style.display='none';
+initLock();
 ['incomeOverlay','detectedOverlay','investOverlay'].forEach(id=>{
   document.getElementById(id).addEventListener('click',function(e){if(e.target===this)closeModal(id);});
 });
