@@ -492,19 +492,23 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);heig
       <div class="share-card">
         <div class="share-card-title">📧 Enviar a Uriel</div>
         <div class="share-card-desc">
-          Le mandás un mail a tu asesor financiero sexy con el resumen de tus finanzas adjunto. Con copia a vos 🩷
-          <br><br>
-          <strong>Para:</strong> uriel.fadel@gmail.com<br>
-          <strong>CC:</strong> nayla.levy@gmail.com<br>
-          <strong>Asunto:</strong> Finanzas Pinguinita<br>
-          <strong>Mensaje:</strong> "Amorcito, para que mi asesor financiero sexy lo analice"
+          Le mandás un mail a tu asesor financiero sexy con el resumen adjunto. Con copia a vos 🩷<br><br>
+          <strong>Para:</strong> uriel.fadel@gmail.com · <strong>CC:</strong> nayla.levy@gmail.com<br>
+          <strong>Asunto:</strong> Finanzas Pinguinita
+        </div>
+        <div style="background:#FFF8E1;border-radius:10px;padding:10px 12px;margin-bottom:12px;font-size:11px;color:#7A6000;font-weight:700;line-height:1.6;">
+          💡 <strong>Cómo adjuntar:</strong> tocá el botón → se descarga el archivo → abrís Gmail → adjuntás desde Descargas → enviás 💌
         </div>
         <button class="share-btn share-btn-email" onclick="sendEmailExcel()">
-          📧 Enviar Excel por email
+          📊 Descargar Excel + Abrir Gmail
         </button>
         <button class="share-btn share-btn-csv" onclick="sendEmailCSV()">
-          📄 Enviar CSV por email
+          📄 Descargar CSV + Abrir Gmail
         </button>
+        <div style="margin-top:12px;padding:10px 12px;background:#FEF0F4;border-radius:10px;font-size:11px;color:#7A4560;font-weight:700;line-height:1.6;">
+          ⚠️ <strong>¿Por qué Uriel ve todo en cero?</strong><br>
+          Tus datos se guardan solo en TU celular. Para que él vea tus finanzas, enviale el Excel/CSV por email. Él puede abrirlo en Excel, Google Sheets o Power BI 📊
+        </div>
       </div>
 
       <!-- MOCKINGJAY CARD -->
@@ -789,11 +793,44 @@ function detectCat(text) {
   return 'varias';
 }
 
+function wordsToNumber(t) {
+  // Map Spanish words to values
+  const units = {cero:0,un:1,uno:1,una:1,dos:2,tres:3,cuatro:4,cinco:5,seis:6,siete:7,ocho:8,nueve:9,diez:10,once:11,doce:12,trece:13,catorce:14,quince:15,dieciséis:16,dieciseis:16,diecisiete:17,dieciocho:18,diecinueve:19,veinte:20,veintiuno:21,veintidos:22,veintidós:22,veintitres:23,veintitrés:23,veinticuatro:24,veinticinco:25,veintiseis:26,veintiséis:26,veintisiete:27,veintiocho:28,veintinueve:29,treinta:30,cuarenta:40,cincuenta:50,sesenta:60,setenta:70,ochenta:80,noventa:90,cien:100,ciento:100,doscientos:200,doscientas:200,trescientos:300,trescientas:300,cuatrocientos:400,cuatrocientas:400,quinientos:500,quinientas:500,seiscientos:600,seiscientas:600,setecientos:700,setecientas:700,ochocientos:800,ochocientas:800,novecientos:900,novecientas:900};
+  const multipliers = {mil:1000,miles:1000,millon:1000000,millón:1000000,millones:1000000};
+  // clean text
+  t = t.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+  t = t.replace(/\by\b/g,' ').replace(/\bcon\b/g,' ').replace(/\bde\b/g,' ');
+  const words = t.split(/\s+/).filter(Boolean);
+  let total = 0, current = 0, found = false;
+  for (const w of words) {
+    if (units[w] !== undefined) { current += units[w]; found = true; }
+    else if (multipliers[w]) {
+      if (current === 0) current = 1;
+      current *= multipliers[w];
+      total += current; current = 0; found = true;
+    }
+  }
+  total += current;
+  return found ? total : null;
+}
+
 function extractAmount(text) {
-  const t = text.toLowerCase();
-  let m = t.match(/(\d[\d.,]*)(?:\s*(?:pesos?|ars|peso))?/);
-  if (!m) return 0;
-  return parseFloat(m[1].replace(/\./g,'').replace(',','.')) || 0;
+  const t = text.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+  // 1. Try digit patterns first: "50.000", "50,000", "50000"
+  const digitMatch = t.match(/(\d[\d.]*(?:,\d+)?)/);
+  if (digitMatch) {
+    const raw = digitMatch[1].replace(/\./g,'').replace(',','.');
+    const n = parseFloat(raw);
+    if (n > 0) {
+      // Check if "mil" follows the number to multiply
+      if (/\d\s*(mil|miles)/.test(t)) return n * 1000;
+      return n;
+    }
+  }
+  // 2. Try spoken words: "cincuenta mil pesos"
+  const spoken = wordsToNumber(t);
+  if (spoken && spoken > 0) return spoken;
+  return 0;
 }
 
 function fmt(n, cur) {
@@ -1239,33 +1276,65 @@ function checkEmotion(){
 
 // =========== EXCEL EXPORT ===========
 function buildWorkbook(){
-  const rows=txs.map(t=>({
-    'Fecha':new Date(t.date).toLocaleDateString('es-AR'),
-    'Hora':new Date(t.date).toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'}),
-    'Tipo':t.type==='gasto'?'Gasto':'Ingreso',
-    'Categoría':(CATS[t.category]||CATS.varias).label,
-    'Descripción':t.description,
-    'Monto':t.amount,
-    'Moneda':t.currency,
-    'Compartido':t.shared?'Sí':'No'
+  // Sheet 1: full transaction log
+  const rows = txs.map(t => ({
+    'Fecha':         new Date(t.date).toLocaleDateString('es-AR'),
+    'Hora':          new Date(t.date).toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'}),
+    'Mes':           new Date(t.date).toLocaleDateString('es-AR',{month:'long',year:'numeric'}),
+    'Tipo':          t.type==='gasto'?'Gasto':'Ingreso',
+    'Categoría':     (CATS[t.category]||CATS.varias).label,
+    'Descripción':   t.description,
+    'Monto':         t.amount,
+    'Moneda':        t.currency,
+    'Compartido':    t.shared?'Sí':'No',
+    'Para (persona)':t.forPerson ? (CATS[t.forPerson]||{label:t.forPerson}).label : '',
   }));
-  const wb=XLSX.utils.book_new();
-  const ws=XLSX.utils.json_to_sheet(rows);
-  ws['!cols']=[{wch:12},{wch:8},{wch:10},{wch:24},{wch:38},{wch:14},{wch:8},{wch:12}];
-  XLSX.utils.book_append_sheet(wb,ws,'Gastos');
-  const totals=Object.entries(
-    txs.filter(t=>t.type==='gasto'&&t.currency==='ARS')
-       .reduce((acc,t)=>{const l=(CATS[t.category]||CATS.varias).label;acc[l]=(acc[l]||0)+t.amount;return acc;},{})
-  ).map(([cat,total])=>({'Categoría':cat,'Total ARS':total}));
-  const ws2=XLSX.utils.json_to_sheet(totals);
-  ws2['!cols']=[{wch:24},{wch:14}];
-  XLSX.utils.book_append_sheet(wb,ws2,'Resumen');
-  // Inversiones sheet
+  const wb = XLSX.utils.book_new();
+  const ws = XLSX.utils.json_to_sheet(rows);
+  ws['!cols'] = [{wch:12},{wch:8},{wch:18},{wch:10},{wch:24},{wch:38},{wch:12},{wch:8},{wch:12},{wch:16}];
+  XLSX.utils.book_append_sheet(wb, ws, 'Todos los registros');
+
+  // Sheet 2: summary by category
+  const catTotals = txs
+    .filter(t=>t.type==='gasto'&&t.currency==='ARS')
+    .reduce((acc,t)=>{const l=(CATS[t.category]||CATS.varias).label;acc[l]=(acc[l]||0)+t.amount;return acc;},{});
+  const ws2 = XLSX.utils.json_to_sheet(
+    Object.entries(catTotals)
+      .sort((a,b)=>b[1]-a[1])
+      .map(([cat,total])=>({'Categoría':cat,'Total ARS':total,'Cantidad':txs.filter(t=>t.type==='gasto'&&t.currency==='ARS'&&(CATS[t.category]||CATS.varias).label===cat).length}))
+  );
+  ws2['!cols']=[{wch:24},{wch:14},{wch:10}];
+  XLSX.utils.book_append_sheet(wb, ws2, 'Resumen por Categoría');
+
+  // Sheet 3: summary by month
+  const monthTotals = txs
+    .filter(t=>t.type==='gasto'&&t.currency==='ARS')
+    .reduce((acc,t)=>{const m=new Date(t.date).toLocaleDateString('es-AR',{month:'long',year:'numeric'});acc[m]=(acc[m]||0)+t.amount;return acc;},{});
+  const ws3 = XLSX.utils.json_to_sheet(
+    Object.entries(monthTotals).map(([mes,total])=>({'Mes':mes,'Total ARS':total}))
+  );
+  ws3['!cols']=[{wch:20},{wch:14}];
+  XLSX.utils.book_append_sheet(wb, ws3, 'Resumen por Mes');
+
+  // Sheet 4: summary by person
+  const personTotals = txs
+    .filter(t=>t.type==='gasto'&&t.currency==='ARS'&&t.forPerson)
+    .reduce((acc,t)=>{const p=(CATS[t.forPerson]||{label:t.forPerson}).label;acc[p]=(acc[p]||0)+t.amount;return acc;},{});
+  if(Object.keys(personTotals).length){
+    const ws4 = XLSX.utils.json_to_sheet(
+      Object.entries(personTotals).sort((a,b)=>b[1]-a[1]).map(([persona,total])=>({'Persona':persona,'Total ARS':total}))
+    );
+    ws4['!cols']=[{wch:18},{wch:14}];
+    XLSX.utils.book_append_sheet(wb, ws4, 'Gastos por Persona');
+  }
+
+  // Sheet 5: inversiones
   if(invests.length){
-    const invRows=invests.map(i=>({'Fecha':new Date(i.date).toLocaleDateString('es-AR'),'Destino':i.dest,'Monto':i.amount,'Moneda':i.currency,'Notas':i.note||''}));
-    const ws3=XLSX.utils.json_to_sheet(invRows);
-    ws3['!cols']=[{wch:12},{wch:24},{wch:14},{wch:8},{wch:30}];
-    XLSX.utils.book_append_sheet(wb,ws3,'Inversiones');
+    const ws5 = XLSX.utils.json_to_sheet(
+      invests.map(i=>({'Fecha':new Date(i.date).toLocaleDateString('es-AR'),'Destino':i.dest,'Monto':i.amount,'Moneda':i.currency,'Notas':i.note||''}))
+    );
+    ws5['!cols']=[{wch:12},{wch:24},{wch:14},{wch:8},{wch:30}];
+    XLSX.utils.book_append_sheet(wb, ws5, 'Inversiones');
   }
   return wb;
 }
@@ -1278,40 +1347,56 @@ function exportExcel(){
 
 function sendEmailExcel(){
   if(!txs.length){showToast('No hay gastos registrados aún 🌸');return;}
-  // Download the file first, then open email client
-  XLSX.writeFile(buildWorkbook(),'DaleNay_Finanzas_Pinguinita.xlsx');
+  // 1. Download xlsx
+  const fname = 'DaleNay_Finanzas_Pinguinita_' + new Date().toLocaleDateString('es-AR').replace(/\//g,'-') + '.xlsx';
+  XLSX.writeFile(buildWorkbook(), fname);
+  // 2. Show toast with instructions
+  showToast('📥 Excel descargado en Descargas');
+  // 3. After short delay, open Gmail with pre-filled fields
   setTimeout(()=>{
-    const subject=encodeURIComponent('Finanzas Pinguinita');
-    const body=encodeURIComponent('Amorcito, para que mi asesor financiero sexy lo analice 🩷\n\n(Adjunto encontrarás el Excel con mis finanzas — lo descargaste en este dispositivo)');
-    const mailTo=`mailto:uriel.fadel@gmail.com?cc=nayla.levy@gmail.com&subject=${subject}&body=${body}`;
-    window.open(mailTo,'_blank');
-    showToast('Excel descargado · Abriendo email 📧');
-  },600);
+    const subject = encodeURIComponent('Finanzas Pinguinita');
+    const body = encodeURIComponent(
+      'Amorcito, para que mi asesor financiero sexy lo analice 🩷\n\n' +
+      '📎 PASOS PARA ADJUNTAR:\n' +
+      '1. Este mail ya está listo con asunto y destinatarios\n' +
+      '2. Tocá el clip 📎 en Gmail\n' +
+      '3. Elegí "Archivos" → Descargas → ' + fname + '\n' +
+      '4. Enviá 💌\n\n' +
+      '(El archivo Excel tiene 5 hojas: registros, por categoría, por mes, por persona e inversiones)'
+    );
+    // Try Gmail app first, fallback to mailto
+    const gmailUrl = 'https://mail.google.com/mail/?view=cm&to=uriel.fadel@gmail.com&cc=nayla.levy@gmail.com&su=' + subject + '&body=' + body;
+    window.open(gmailUrl, '_blank');
+  }, 1200);
 }
 
 function sendEmailCSV(){
   if(!txs.length){showToast('No hay gastos registrados aún 🌸');return;}
-  // Build CSV
-  const header=['Fecha','Hora','Tipo','Categoría','Descripción','Monto','Moneda','Compartido'];
+  const header=['Fecha','Hora','Mes','Tipo','Categoría','Descripción','Monto','Moneda','Compartido','Para (persona)'];
   const rows=txs.map(t=>[
     new Date(t.date).toLocaleDateString('es-AR'),
     new Date(t.date).toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'}),
+    new Date(t.date).toLocaleDateString('es-AR',{month:'long',year:'numeric'}),
     t.type==='gasto'?'Gasto':'Ingreso',
     (CATS[t.category]||CATS.varias).label,
     '"'+t.description.replace(/"/g,'""')+'"',
-    t.amount,t.currency,t.shared?'Sí':'No'
+    t.amount, t.currency,
+    t.shared?'Sí':'No',
+    t.forPerson?(CATS[t.forPerson]||{label:t.forPerson}).label:''
   ]);
   const csv=[header,...rows].map(r=>r.join(',')).join('\n');
   const blob=new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8;'});
   const url=URL.createObjectURL(blob);
-  const a=document.createElement('a');a.href=url;a.download='DaleNay_Finanzas_Pinguinita.csv';a.click();
+  const a=document.createElement('a');a.href=url;
+  const fname='DaleNay_Finanzas_Pinguinita_'+new Date().toLocaleDateString('es-AR').replace(/\//g,'-')+'.csv';
+  a.download=fname; a.click();
   URL.revokeObjectURL(url);
+  showToast('📥 CSV descargado en Descargas');
   setTimeout(()=>{
     const subject=encodeURIComponent('Finanzas Pinguinita');
-    const body=encodeURIComponent('Amorcito, para que mi asesor financiero sexy lo analice 🩷\n\n(Adjunto encontrarás el CSV con mis finanzas — lo descargaste en este dispositivo)');
-    window.open(`mailto:uriel.fadel@gmail.com?cc=nayla.levy@gmail.com&subject=${subject}&body=${body}`,'_blank');
-    showToast('CSV descargado · Abriendo email 📧');
-  },600);
+    const body=encodeURIComponent('Amorcito, para que mi asesor financiero sexy lo analice 🩷\n\nAdjuntá el archivo CSV desde tu carpeta Descargas: '+fname);
+    window.open('https://mail.google.com/mail/?view=cm&to=uriel.fadel@gmail.com&cc=nayla.levy@gmail.com&su='+subject+'&body='+body,'_blank');
+  },1200);
 }
 
 // =========== PERSON ANALYSIS ===========
