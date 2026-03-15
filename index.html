@@ -405,6 +405,12 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);heig
       <div class="stat-card"><div class="stat-lbl">Promedio diario</div><div class="stat-val" id="stAvg" style="color:#8E44AD;">$ 0</div><div class="stat-sub">ARS</div></div>
       <div class="stat-card"><div class="stat-lbl">Balance</div><div class="stat-val" id="stBalance" style="color:#27AE60;">$ 0</div><div class="stat-sub">ingresos − gastos</div></div>
     </div>
+    <!-- SMART INSIGHTS -->
+    <div style="padding:14px 14px 0;">
+      <div style="font-size:10px;font-weight:800;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;">💡 Análisis inteligente</div>
+      <div id="smartInsights" style="display:flex;flex-direction:column;gap:8px;"></div>
+    </div>
+
     <div class="chart-block"><div class="chart-label">Gastos por categoría 🩷</div><div class="chart-card"><canvas id="doughnutChart" height="220"></canvas></div></div>
     <div class="chart-block"><div class="chart-label">Evolución de gastos 📈</div><div class="chart-card"><canvas id="lineChart" height="180"></canvas></div></div>
     <div class="chart-block" style="margin-bottom:14px;"><div class="chart-label">Por moneda 💰</div><div class="chart-card"><canvas id="barChart" height="160"></canvas></div></div>
@@ -492,22 +498,38 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);heig
       <div class="share-card">
         <div class="share-card-title">📧 Enviar a Uriel</div>
         <div class="share-card-desc">
-          Le mandás un mail a tu asesor financiero sexy con el resumen adjunto. Con copia a vos 🩷<br><br>
-          <strong>Para:</strong> uriel.fadel@gmail.com · <strong>CC:</strong> nayla.levy@gmail.com<br>
-          <strong>Asunto:</strong> Finanzas Pinguinita
+          El archivo se descarga y se abre WhatsApp/Gmail para que lo adjuntés vos 🩷<br>
+          <strong>Para:</strong> uriel.fadel@gmail.com · <strong>CC:</strong> nayla.levy@gmail.com
         </div>
-        <div style="background:#FFF8E1;border-radius:10px;padding:10px 12px;margin-bottom:12px;font-size:11px;color:#7A6000;font-weight:700;line-height:1.6;">
-          💡 <strong>Cómo adjuntar:</strong> tocá el botón → se descarga el archivo → abrís Gmail → adjuntás desde Descargas → enviás 💌
+
+        <!-- STEP BY STEP -->
+        <div style="background:linear-gradient(135deg,#FFF0F5,#FADADD);border:1.5px solid rgba(232,83,138,0.2);border-radius:12px;padding:12px 14px;margin-bottom:14px;">
+          <div style="font-size:10px;font-weight:800;color:var(--pink);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;">Paso a paso 🩷</div>
+          <div style="font-size:11px;color:var(--text2);font-weight:700;line-height:1.8;">
+            1️⃣ Tocá el botón → el archivo se descarga<br>
+            2️⃣ Abrí Gmail → Redactar<br>
+            3️⃣ Tocá el clip 📎 → Adjuntar archivo → Descargas<br>
+            4️⃣ Elegí el archivo <strong>DaleNay_Finanzas_Pinguinita.xlsx</strong><br>
+            5️⃣ Enviá a uriel.fadel@gmail.com 💌
+          </div>
         </div>
-        <button class="share-btn share-btn-email" onclick="sendEmailExcel()">
-          📊 Descargar Excel + Abrir Gmail
+
+        <button class="share-btn share-btn-email" onclick="sendEmailExcel()" id="btnSendExcel">
+          📊 Descargar Excel para enviar
         </button>
-        <button class="share-btn share-btn-csv" onclick="sendEmailCSV()">
-          📄 Descargar CSV + Abrir Gmail
+        <button class="share-btn share-btn-csv" onclick="sendEmailCSV()" style="margin-top:10px;">
+          📄 Descargar CSV para enviar
         </button>
+
+        <!-- WHATSAPP OPTION -->
+        <div style="margin-top:12px;font-size:10px;font-weight:800;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;text-align:center;">— o enviá por WhatsApp —</div>
+        <button onclick="sendWhatsApp()" style="width:100%;margin-top:10px;padding:13px;background:linear-gradient(135deg,#25D366,#128C7E);border:none;border-radius:var(--radius-sm);color:#fff;font-family:'Nunito',sans-serif;font-size:14px;font-weight:900;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;">
+          💬 Enviar resumen por WhatsApp
+        </button>
+
         <div style="margin-top:12px;padding:10px 12px;background:#FEF0F4;border-radius:10px;font-size:11px;color:#7A4560;font-weight:700;line-height:1.6;">
           ⚠️ <strong>¿Por qué Uriel ve todo en cero?</strong><br>
-          Tus datos se guardan solo en TU celular. Para que él vea tus finanzas, enviale el Excel/CSV por email. Él puede abrirlo en Excel, Google Sheets o Power BI 📊
+          Tus datos viven solo en TU celular. Enviándole el Excel por Gmail o el resumen por WhatsApp puede ver todo perfectamente 📊
         </div>
       </div>
 
@@ -1226,6 +1248,64 @@ function renderCharts(){
     data:{labels:['ARS 🇦🇷','UYU 🇺🇾','USD 💵'],datasets:[{data:[curMap.ARS,curMap.UYU,curMap.USD],backgroundColor:['rgba(232,83,138,0.7)','rgba(255,133,161,0.7)','rgba(255,182,200,0.7)'],borderColor:['#E8538A','#FF85A1','#FFB6C8'],borderWidth:2,borderRadius:10}]},
     options:{responsive:true,plugins:{legend:{display:false}},scales:{x:{ticks:{font:{family:'Nunito',size:11,weight:'700'},color:'#7A4560'},grid:{display:false}},y:{ticks:{font:{family:'Nunito',size:10},color:'#B07090'},grid:{color:'rgba(232,83,138,0.06)'}}}}
   });
+  renderInsights(list);
+}
+
+function renderInsights(list){
+  const container = document.getElementById('smartInsights');
+  if(!container) return;
+  container.innerHTML='';
+  const insights = [];
+  const arsList = list.filter(t=>t.currency==='ARS');
+  const total = arsList.reduce((s,t)=>s+t.amount,0);
+  const {arsInc, balance} = calcBalance();
+
+  // 1. Spending rate
+  if(arsInc>0){
+    const pct = Math.round(total/arsInc*100);
+    const color = pct>90?'#E8538A':pct>70?'#E67E22':'#27AE60';
+    const emoji = pct>90?'🔴':pct>70?'🟡':'🟢';
+    insights.push({emoji, text:`Gastaste el <strong>${pct}%</strong> de tus ingresos este período`, color});
+  }
+
+  // 2. Biggest category
+  const catTotals={};
+  arsList.forEach(t=>{const l=(CATS[t.category]||CATS.varias).label;catTotals[l]=(catTotals[l]||0)+t.amount;});
+  const topCat = Object.entries(catTotals).sort((a,b)=>b[1]-a[1])[0];
+  if(topCat) insights.push({emoji:'📌', text:`Tu mayor gasto fue en <strong>${topCat[0]}</strong>: ${fmt(topCat[1],'ARS')}`, color:'#8E44AD'});
+
+  // 3. Shared expenses
+  const sharedTotal = arsList.filter(t=>t.shared).reduce((s,t)=>s+t.amount,0);
+  if(sharedTotal>0) insights.push({emoji:'🤝', text:`Gastos compartidos este período: <strong>${fmt(sharedTotal,'ARS')}</strong>`, color:'#2980B9'});
+
+  // 4. Abejita spending
+  const abejitaTotal = arsList.filter(t=>t.category==='abejita').reduce((s,t)=>s+t.amount,0);
+  if(abejitaTotal>0){
+    const abPct = total>0?Math.round(abejitaTotal/total*100):0;
+    insights.push({emoji:'🐝', text:`Gastos Abejita: <strong>${fmt(abejitaTotal,'ARS')}</strong> (${abPct}% del total)`, color:'#F39C12'});
+  }
+
+  // 5. Days with spending
+  const activeDays = new Set(arsList.map(t=>new Date(t.date).toDateString())).size;
+  if(activeDays>0){
+    const avgPerDay = Math.round(total/activeDays);
+    insights.push({emoji:'📅', text:`Gastaste en <strong>${activeDays} días</strong>. Promedio por día activo: ${fmt(avgPerDay,'ARS')}`, color:'#1ABC9C'});
+  }
+
+  // 6. Balance warning
+  if(balance<0) insights.push({emoji:'⚠️', text:`Tu balance es negativo: <strong>${fmt(balance,'ARS')}</strong>. ¡Cuidado con los gastos!`, color:'#E8538A'});
+  else if(balance>0) insights.push({emoji:'✨', text:`¡Muy bien! Te sobran <strong>${fmt(balance,'ARS')}</strong> este mes`, color:'#27AE60'});
+
+  if(!insights.length){
+    container.innerHTML='<div style="font-size:12px;color:var(--text4);font-weight:700;text-align:center;padding:8px 0;">Registrá gastos para ver el análisis 🩷</div>';
+    return;
+  }
+  insights.forEach(({emoji,text,color})=>{
+    const div=document.createElement('div');
+    div.style.cssText=`background:#fff;border:1.5px solid ${color}22;border-left:3px solid ${color};border-radius:10px;padding:9px 12px;font-size:11px;color:var(--text2);font-weight:700;line-height:1.5;`;
+    div.innerHTML=`${emoji} ${text}`;
+    container.appendChild(div);
+  });
 }
 
 // =========== SINSAJO / INSIDE OUT ===========
@@ -1347,27 +1427,9 @@ function exportExcel(){
 
 function sendEmailExcel(){
   if(!txs.length){showToast('No hay gastos registrados aún 🌸');return;}
-  // 1. Download xlsx
-  const fname = 'DaleNay_Finanzas_Pinguinita_' + new Date().toLocaleDateString('es-AR').replace(/\//g,'-') + '.xlsx';
+  const fname = 'DaleNay_Finanzas_Pinguinita.xlsx';
   XLSX.writeFile(buildWorkbook(), fname);
-  // 2. Show toast with instructions
-  showToast('📥 Excel descargado en Descargas');
-  // 3. After short delay, open Gmail with pre-filled fields
-  setTimeout(()=>{
-    const subject = encodeURIComponent('Finanzas Pinguinita');
-    const body = encodeURIComponent(
-      'Amorcito, para que mi asesor financiero sexy lo analice 🩷\n\n' +
-      '📎 PASOS PARA ADJUNTAR:\n' +
-      '1. Este mail ya está listo con asunto y destinatarios\n' +
-      '2. Tocá el clip 📎 en Gmail\n' +
-      '3. Elegí "Archivos" → Descargas → ' + fname + '\n' +
-      '4. Enviá 💌\n\n' +
-      '(El archivo Excel tiene 5 hojas: registros, por categoría, por mes, por persona e inversiones)'
-    );
-    // Try Gmail app first, fallback to mailto
-    const gmailUrl = 'https://mail.google.com/mail/?view=cm&to=uriel.fadel@gmail.com&cc=nayla.levy@gmail.com&su=' + subject + '&body=' + body;
-    window.open(gmailUrl, '_blank');
-  }, 1200);
+  showToast('📥 Excel guardado en Descargas!');
 }
 
 function sendEmailCSV(){
@@ -1387,16 +1449,52 @@ function sendEmailCSV(){
   const csv=[header,...rows].map(r=>r.join(',')).join('\n');
   const blob=new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8;'});
   const url=URL.createObjectURL(blob);
-  const a=document.createElement('a');a.href=url;
-  const fname='DaleNay_Finanzas_Pinguinita_'+new Date().toLocaleDateString('es-AR').replace(/\//g,'-')+'.csv';
-  a.download=fname; a.click();
+  const a=document.createElement('a');a.href=url;a.download='DaleNay_Finanzas_Pinguinita.csv';a.click();
   URL.revokeObjectURL(url);
-  showToast('📥 CSV descargado en Descargas');
-  setTimeout(()=>{
-    const subject=encodeURIComponent('Finanzas Pinguinita');
-    const body=encodeURIComponent('Amorcito, para que mi asesor financiero sexy lo analice 🩷\n\nAdjuntá el archivo CSV desde tu carpeta Descargas: '+fname);
-    window.open('https://mail.google.com/mail/?view=cm&to=uriel.fadel@gmail.com&cc=nayla.levy@gmail.com&su='+subject+'&body='+body,'_blank');
-  },1200);
+  showToast('📥 CSV guardado en Descargas!');
+}
+
+function sendWhatsApp(){
+  // Build a text summary to send via WhatsApp
+  const now = new Date();
+  const mes = now.toLocaleDateString('es-AR',{month:'long',year:'numeric'});
+  const gastos = txs.filter(t=>t.type==='gasto'&&t.currency==='ARS');
+  const totalGastos = gastos.reduce((s,t)=>s+t.amount,0);
+  const {arsInc, balance} = calcBalance();
+
+  // By category
+  const catTotals = gastos.reduce((acc,t)=>{
+    const l=(CATS[t.category]||CATS.varias).label;
+    acc[l]=(acc[l]||0)+t.amount; return acc;
+  },{});
+  const catLines = Object.entries(catTotals)
+    .sort((a,b)=>b[1]-a[1])
+    .map(([cat,total])=>`  • ${cat}: ${fmt(total,'ARS')}`)
+    .join('\n');
+
+  // By person
+  const personTotals = gastos.filter(t=>t.forPerson).reduce((acc,t)=>{
+    const p=(CATS[t.forPerson]||{label:t.forPerson}).label;
+    acc[p]=(acc[p]||0)+t.amount; return acc;
+  },{});
+  const personLines = Object.entries(personTotals).length
+    ? '\n👨‍👩‍👧 *Gastos por persona:*\n' + Object.entries(personTotals).map(([p,t])=>`  • ${p}: ${fmt(t,'ARS')}`).join('\n')
+    : '';
+
+  const msg =
+    '🩷 *Finanzas Pinguinita — ' + mes + '*\n' +
+    '─────────────────────\n' +
+    '💰 *Ingresos:* ' + fmt(arsInc,'ARS') + '\n' +
+    '💸 *Gastos totales:* ' + fmt(totalGastos,'ARS') + '\n' +
+    '📊 *Balance:* ' + fmt(balance,'ARS') + '\n\n' +
+    '📂 *Por categoría:*\n' + catLines +
+    personLines + '\n\n' +
+    'Amorcito, para que mi asesor financiero sexy lo analice 🩷';
+
+  const url = 'https://wa.me/+5491100000000?text=' + encodeURIComponent(msg);
+  // Open WhatsApp — user can change the number or pick from contacts
+  window.open('https://wa.me/?text=' + encodeURIComponent(msg), '_blank');
+  showToast('Abriendo WhatsApp 💬');
 }
 
 // =========== PERSON ANALYSIS ===========
