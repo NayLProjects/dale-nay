@@ -254,6 +254,11 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);heig
 .det-big-amt{font-family:'DM Serif Display',serif;font-size:32px;color:var(--text);font-style:italic;}
 .det-desc-sub{font-size:13px;color:var(--text3);font-weight:700;margin-top:4px;}
 
+/* EDIT MODAL */
+.edit-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px;}
+.btn-danger{padding:13px;background:none;border:1.5px solid #E8538A;border-radius:var(--radius);color:#E8538A;font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;cursor:pointer;transition:all .2s;}
+.btn-danger:active{background:#FADADD;}
+
 /* TOAST */
 .toast{position:fixed;bottom:88px;left:50%;transform:translateX(-50%);background:var(--text);color:#fff;padding:11px 22px;border-radius:100px;font-size:13px;font-weight:800;z-index:400;opacity:0;transition:opacity .3s;pointer-events:none;white-space:nowrap;}
 .toast.show{opacity:1;}
@@ -744,6 +749,58 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);heig
   </div>
 </div>
 
+<!-- MODAL EDITAR GASTO -->
+<div class="modal-overlay" id="editOverlay">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+      <div class="modal-title" style="margin-bottom:0;">Editar gasto ✏️</div>
+      <div id="editDateLabel" style="font-size:10px;color:var(--text3);font-weight:700;"></div>
+    </div>
+    <label class="form-label">Monto</label>
+    <input type="number" class="form-input" id="editAmt" placeholder="0" inputmode="decimal">
+    <label class="form-label">Descripción</label>
+    <input type="text" class="form-input" id="editDesc" placeholder="Descripción del gasto">
+    <label class="form-label">Categoría</label>
+    <select class="form-select" id="editCat">
+      <option value="supermercado">🛒 Supermercado</option>
+      <option value="verduleria">🥦 Verdulería</option>
+      <option value="remedios">💊 Remedios</option>
+      <option value="transporte">🚗 Transporte</option>
+      <option value="ropa">👗 Ropa</option>
+      <option value="tarjeta">💳 Tarjeta de Crédito</option>
+      <option value="mercadopago">💸 Plata enviada a MercadoPago</option>
+      <option value="transferencias">🔁 Transferencias</option>
+      <option value="abejita">🐝 Gastos Abejita</option>
+      <option value="varias">📦 Cosas Varias</option>
+    </select>
+    <label class="form-label">Moneda</label>
+    <div class="currency-row" id="editCurRow">
+      <button class="cur-btn active" onclick="setCurEdit(this,'ARS')">🇦🇷 ARS</button>
+      <button class="cur-btn" onclick="setCurEdit(this,'UYU')">🇺🇾 UYU</button>
+      <button class="cur-btn" onclick="setCurEdit(this,'USD')">💵 USD</button>
+    </div>
+    <label class="form-label">¿Para alguien?</label>
+    <select class="form-select" id="editPerson">
+      <option value="">— Nadie en particular —</option>
+      <option value="mama">👩‍❤️‍👩 Mamá</option>
+      <option value="papa">👨‍👧 Papá</option>
+      <option value="amorcito">💑 Amorcito</option>
+      <option value="mili">👧 Mili</option>
+      <option value="ailincita">🌟 Ailincita</option>
+    </select>
+    <div class="shared-row">
+      <label>¿Gasto compartido? 🤝</label>
+      <button class="toggle" id="editSharedToggle" onclick="this.classList.toggle('on')"></button>
+    </div>
+    <div class="edit-actions">
+      <button class="btn-danger" onclick="deleteExpense()">🗑️ Eliminar</button>
+      <button class="btn-primary" style="margin-top:0;" onclick="saveEdit()">Guardar cambios 🩷</button>
+    </div>
+    <button class="btn-secondary" onclick="closeModal('editOverlay')">Cancelar</button>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
@@ -752,6 +809,8 @@ let txs = JSON.parse(localStorage.getItem('nay_txs') || '[]');
 let incomes = JSON.parse(localStorage.getItem('nay_incomes') || '{"salario":0,"salarioCur":"ARS","alquiler":0,"alquilerCur":"ARS","inversiones":0,"inversionesCur":"ARS"}');
 let invests = JSON.parse(localStorage.getItem('nay_invests') || '[]');
 let currentFilter = 'todos';
+let editingTxId = null;
+let currentEditCurrency = 'ARS';
 let currentCurrency = 'ARS';
 let currentInvestCurrency = 'ARS';
 let currentIncomeType = 'salario';
@@ -1176,7 +1235,9 @@ function renderTx(){
         <div class="tx-right">
           <div class="tx-amount neg">-${fmt(t.amount,t.currency)}</div>
           <div class="tx-cur">${t.currency}</div>
-        </div>`;
+        </div>
+        <div style="font-size:14px;color:var(--text4);margin-left:2px;flex-shrink:0;">✏️</div>`;
+      div.onclick = () => openEditModal(t.id);
       container.appendChild(div);
     });
   });
@@ -1743,6 +1804,57 @@ function toggleBalance() {
   document.getElementById('balanceToggle').textContent = balanceVisible ? '🤍' : '🩷';
 }
 
+// =========== EDIT / DELETE ===========
+function openEditModal(id){
+  const t = txs.find(tx=>tx.id===id);
+  if(!t) return;
+  editingTxId = id;
+  currentEditCurrency = t.currency || 'ARS';
+  document.getElementById('editAmt').value = t.amount;
+  document.getElementById('editDesc').value = t.description;
+  document.getElementById('editCat').value = t.category || 'varias';
+  document.getElementById('editPerson').value = t.forPerson || '';
+  document.getElementById('editSharedToggle').classList.toggle('on', !!t.shared);
+  document.getElementById('editDateLabel').textContent = new Date(t.date).toLocaleDateString('es-AR',{weekday:'short',day:'2-digit',month:'short',year:'numeric'});
+  // set currency buttons
+  document.querySelectorAll('#editCurRow .cur-btn').forEach(b => {
+    b.classList.toggle('active', b.textContent.includes(currentEditCurrency));
+  });
+  document.getElementById('editOverlay').classList.add('open');
+}
+
+function setCurEdit(btn, cur){
+  currentEditCurrency = cur;
+  document.querySelectorAll('#editCurRow .cur-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+function saveEdit(){
+  const amt = parseFloat(document.getElementById('editAmt').value);
+  if(!amt || amt<=0){ showToast('Ingresá un monto válido 🩷'); return; }
+  const idx = txs.findIndex(tx=>tx.id===editingTxId);
+  if(idx===-1) return;
+  txs[idx].amount      = amt;
+  txs[idx].description = document.getElementById('editDesc').value || txs[idx].description;
+  txs[idx].category    = document.getElementById('editCat').value;
+  txs[idx].currency    = currentEditCurrency;
+  txs[idx].forPerson   = document.getElementById('editPerson').value || null;
+  txs[idx].shared      = document.getElementById('editSharedToggle').classList.contains('on');
+  save();
+  closeModal('editOverlay');
+  renderTx();
+  showToast('Gasto actualizado 🩷');
+}
+
+function deleteExpense(){
+  if(!confirm('¿Eliminar este gasto?')) return;
+  txs = txs.filter(tx=>tx.id!==editingTxId);
+  save();
+  closeModal('editOverlay');
+  renderTx();
+  showToast('Gasto eliminado 🗑️');
+}
+
 // =========== TOAST ===========
 function showToast(msg){
   const t=document.getElementById('toast');
@@ -1754,7 +1866,7 @@ function showToast(msg){
 updateBalance();
 document.getElementById('exportFab').style.display='none';
 initLock();
-['incomeOverlay','detectedOverlay','investOverlay'].forEach(id=>{
+['incomeOverlay','detectedOverlay','investOverlay','editOverlay'].forEach(id=>{
   document.getElementById(id).addEventListener('click',function(e){if(e.target===this)closeModal(id);});
 });
 </script>
